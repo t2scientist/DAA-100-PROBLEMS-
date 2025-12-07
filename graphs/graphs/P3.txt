@@ -1,0 +1,94 @@
+// Input: grid - [ [2,1,1] , [0,1,1] , [1,0,1] ]
+#include<bits/stdc++.h>
+using namespace std;
+
+class Solution{
+    public:
+    int rottenOranges(vector<vector<int>> &grid){
+        queue<tuple<int,int,int>> q;
+        int rows = grid.size(),cols = grid[0].size();
+        // vector<vector<int>> visited(rows,vector<int>(cols,0));
+        bool freshExists = false;
+        
+        
+        for(int i=0;i<rows;i++){
+            for(int j=0;j<cols;j++){
+                if(grid[i][j] == 2){
+                    q.push(tuple{i,j,0});
+                }else if(grid[i][j]==1){
+                    freshExists = true;
+                }
+            }
+        }
+        
+        if(!freshExists) return 0;
+
+        int dx[] = {1,0,-1,0},dy[] = {0,-1,0,1};
+        
+        if(q.empty()) return -1;
+        int timestamp = 0;
+        while(!q.empty()){
+            auto [i,j,t] = q.front();
+            q.pop();
+            for(int k=0;k<4;k++){
+                int di = i + dx[k],dj = j + dy[k];
+                if(di>=0 && di<rows && dj>=0 && dj<cols && grid[di][dj]==1){
+                    grid[di][dj] = 2;
+                    q.push(tuple{di,dj,t+1});
+                }
+            }
+            timestamp = t;
+        }
+        
+        for(int i=0;i<rows;i++){
+            for(int j=0;j<cols;j++){
+                if(grid[i][j]==1){
+                    return -1;
+                }
+            }
+        }
+        return timestamp;
+    }
+};
+
+vector<vector<int>> getGrid(){
+    string s,num="";
+    getline(cin,s);
+    int rows = 0,cols = 0;
+    for(char c:s){
+        if(c=='['){
+            rows++;
+        }
+    }
+    rows--;
+    vector<int> v;
+    for(char c:s){
+        if(isdigit(c)){
+            num+=c;
+        }else if(!num.empty()){
+            v.push_back(stoi(num));
+            num = "";
+        }
+    }
+    
+    if(!num.empty()){
+        v.push_back(stoi(num));
+    }
+    cols = v.size()/rows;
+    int index = 0;
+    vector<vector<int>> grid(rows,vector<int>(cols));
+    for(int i=0;i<rows;i++){
+        for(int j=0;j<cols;j++){
+            grid[i][j] = v[index++];
+        }
+    }
+    return grid;
+};
+
+int main(){
+    Solution S;
+    auto grid = getGrid();
+    int isRotten = S.rottenOranges(grid);
+    cout<<isRotten;
+    return 0;
+}
